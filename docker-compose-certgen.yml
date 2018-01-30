@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  certgen:
+    container_name: certgen
+    image: hyperledger/fabric-tools:x86_64-1.1.0-alpha
+    volumes:
+      - .:/cli
+    working_dir: /cli
+    user: root
+    privileged: true
+    command: ./certgen.sh

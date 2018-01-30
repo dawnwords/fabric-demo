@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+  ca:
+    container_name: ca
+    image: hyperledger/fabric-ca:x86_64-1.1.0-alpha
+    dns_search: .
+    ports:
+      - 7054:7054
+    volumes:
+      - ./config/MSP/ca:/etc/hyperledger/fabric-ca-server
+
+  orderer:
+    container_name: orderer
+    image: hyperledger/fabric-orderer:x86_64-1.1.0-alpha
+    dns_search: .
+    ports:
+      - 7050:7050
+    volumes:
+      - ./config/MSP/orderer:/etc/hyperledger/fabric
+    depends_on:
+      - ca
+
+  peer1:
+    image: hyperledger/fabric-peer:x86_64-1.1.0-alpha
+    tty: true 
+    dns_search: .
+    container_name: peer1
+    environment:
+      - CORE_LOGGING_LEVEL=INFO
+      - CORE_NEXT=true
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1:7051
+      - CORE_PEER_ID=peer1
+      - CORE_PEER_ADDRESS=peer1:7051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1:7051
+      - CORE_PEER_TLS_SERVERHOSTOVERRIDE=peer1
+      - CORE_CHAINCODE_STARTUPTIMEOUT=600s
+      - CORE_CHAINCODE_EXECUTETIMEOUT=600s
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_SHIM=DEBUG
+      - CORE_CHAINCODE_LOGFORMAT=%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}
+    ports: 
+      - 7051:7051
+      - 7053:7053
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/MSP/peer1:/etc/hyperledger/fabric
+    command: peer node start
+    depends_on:
+      - orderer
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:x86_64-1.1.0-alpha
+    dns_search: .
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_LOGGING_LEVEL=ERROR
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer1:7051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1:7051
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1:7051
+      - CORE_PEER_TLS_SERVERHOSTOVERRIDE=peer1
+      - CORE_NEXT=true
+      - CORE_CHAINCODE_LOGLEVEL=DEBUG
+      - CORE_CHAINCODE_LOGFORMAT=%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}
+    volumes:
+      - ./config/MSP/cli:/etc/hyperledger/fabric
+      - ./chaincode-demo:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
+      - ./start.sh:/cli/start.sh
+      - ./config:/cli/config
+    working_dir: /cli
+    command: ./start.sh
+    depends_on:
+      - orderer
+      - peer1

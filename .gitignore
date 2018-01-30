@@ -1,0 +1,6 @@
+config
+chaincode-demo/vendor/*
+!chaincode-demo/vendor/vendor.json
+.idea
+.gradle
+*.iml

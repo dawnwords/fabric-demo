@@ -1,0 +1,38 @@
+name: Tutorial-Network-Config
+version: v1
+
+client:
+  organization: TutorialOrg
+
+organizations:
+  TutorialOrg:
+    mspid: TutorialMSP
+
+    peers:
+      - peer1
+
+channels:
+  tutorialchannel:
+    orderers:
+      - orderer
+
+    peers:
+      peer1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+orderers:
+  orderer:
+    url: grpc://localhost:7050
+
+peers:
+  peer1:
+    url: grpc://localhost:7051
+    eventUrl: grpc://localhost:7053
+
+certificateAuthorities:
+  ca:
+    url: http://localhost:7054
+    caName: ca

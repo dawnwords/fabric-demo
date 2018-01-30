@@ -1,0 +1,41 @@
+Profiles:
+    OrdererOrg:
+      Orderer:
+        OrdererType: solo
+        Addresses:
+            - orderer:7050
+        BatchTimeout: 200ms
+        BatchSize:
+            MaxMessageCount: 10
+            AbsoluteMaxBytes: 99 MB
+            PreferredMaxBytes: 2 MB
+        Organizations:
+          - *OrdererOrg
+
+      Consortiums:
+        TutorialConsortium:
+          Organizations:
+            - *OrdererOrg
+            - *TutorialOrg
+
+    tutorialchannel:
+      Consortium: TutorialConsortium
+      Application:
+        Organizations:
+          - *TutorialOrg
+
+Organizations:
+    - &OrdererOrg
+        Name: OrdererMSP
+        ID: OrdererMSP
+        MSPDir: cryptogen/ordererOrganizations/orderer.net/msp
+        AdminPrincipal: Role.ADMIN
+
+    - &TutorialOrg
+        Name: TutorialMSP
+        ID: TutorialMSP
+        MSPDir: cryptogen/peerOrganizations/tutorial.ibm.com/msp
+        AdminPrincipal: Role.ADMIN
+        AnchorPeers:
+            - Host: peer1
+              Port: 7051

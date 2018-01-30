@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+mainClassName="org.hyperledger.fabric.sdk.demo.DemoClient"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.hyperledger.fabric-sdk-java:fabric-sdk-java:1.1.0-alpha'
+
+	testCompile 'org.testng:testng:6.8.1'
+}
