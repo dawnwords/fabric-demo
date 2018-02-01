@@ -4,3 +4,5 @@ chaincode-demo/vendor/*
 .idea
 .gradle
 *.iml
+.DS_Store
+client-sdk-demo/build
